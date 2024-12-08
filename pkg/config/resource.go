@@ -107,9 +107,19 @@ var IDAsExternalName GetExternalNameFn = func(tfstate map[string]any) (string, e
 // secret using input terraform attributes
 type AdditionalConnectionDetailsFn func(attr map[string]any) (map[string][]byte, error)
 
+// AdditionalConnectionDetailsWithResourceFn functions adds custom keys to connection details
+// secret using input terraform attributes
+type AdditionalConnectionDetailsWithResourceFn func(attr map[string]any, resource any) (map[string][]byte, error)
+
 // NopAdditionalConnectionDetails does nothing, when no additional connection
 // details configuration function provided.
 var NopAdditionalConnectionDetails AdditionalConnectionDetailsFn = func(_ map[string]any) (map[string][]byte, error) {
+	return nil, nil
+}
+
+// NopAdditionalConnectionDetailsWithResource does nothing, when no additional
+// connection details configuration function provided.
+var NopAdditionalConnectionDetailsWithResource AdditionalConnectionDetailsWithResourceFn = func(_ map[string]any, _ any) (map[string][]byte, error) {
 	return nil, nil
 }
 
@@ -206,8 +216,12 @@ type Reference struct {
 type Sensitive struct {
 	// AdditionalConnectionDetailsFn is the path for function adding additional
 	// connection details keys
+	// Deprecated: Use AdditionalConnectionDetailsWithResourceFn instead.
 	AdditionalConnectionDetailsFn AdditionalConnectionDetailsFn
-
+	// AdditionalConnectionDetailsWithResourceFn is the path for function adding
+	// additional connection details keys accessing the resource as well as the
+	// terraform attributes
+	AdditionalConnectionDetailsWithResourceFn AdditionalConnectionDetailsWithResourceFn
 	// fieldPaths keeps the mapping of sensitive fields in Terraform schema with
 	// terraform field path as key and xp field path as value.
 	fieldPaths map[string]string

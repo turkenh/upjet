@@ -49,7 +49,8 @@ var (
 
 	// NopSensitive does nothing.
 	NopSensitive = Sensitive{
-		AdditionalConnectionDetailsFn: NopAdditionalConnectionDetails,
+		AdditionalConnectionDetailsFn:             NopAdditionalConnectionDetails,
+		AdditionalConnectionDetailsWithResourceFn: NopAdditionalConnectionDetailsWithResource,
 	}
 )
 

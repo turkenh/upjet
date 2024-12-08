@@ -88,6 +88,28 @@ func GetConnectionDetails(attr map[string]any, tr Terraformed, cfg *config.Resou
 		}
 		conn[k] = v
 	}
+	
+	addMore, err := cfg.Sensitive.AdditionalConnectionDetailsWithResourceFn(attr, tr)
+	if err != nil {
+		return nil, errors.Wrap(err, errGetAdditionalConnectionDetails)
+	}
+	for k, v := range addMore {
+		if _, ok := conn[k]; ok {
+			// We return error if a custom key tries to override an existing
+			// connection key. This is because we use connection keys to rebuild
+			// the tfstate, i.e. otherwise we would lose the original value in
+			// tfstate.
+			// Indeed, we are prepending "attribute_" to the Terraform
+			// state sensitive keys and connection keys starting with this
+			// prefix are reserved and should not be used as a custom connection
+			// key.
+			return nil, errors.Errorf(errFmtCannotOverrideExistingKey, k)
+		}
+		if conn == nil {
+			conn = map[string][]byte{}
+		}
+		conn[k] = v
+	}
 
 	return conn, nil
 }
